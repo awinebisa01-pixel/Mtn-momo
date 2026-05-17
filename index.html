@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoMo Platform Wallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-yellow: #FFCC00;
+            --dark-blue: #003B5C;
+            --light-blue: #004F71;
+            --bg-gray: #F5F5F5;
+            --text-dark: #1C1C1E;
+            --text-muted: #7A7A7A;
+            --input-bg: #EFEFEF;
+            --input-border: #DCDCDC;
+            --charcoal: #4A4A4A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Device Frame Wrapper */
+        .phone-wrapper {
+            width: 100%;
+            max-width: 412px;
+            height: 900px;
+            max-height: 100vh;
+            background-color: var(--bg-gray);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+
+        /* Shared Header Architecture */
+        header {
+            background-color: var(--primary-yellow);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        header button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* View Layout System */
+        .view-container {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+        }
+
+        .view-container.active {
+            display: flex;
+        }
+
+        .section-title {
+            font-size: 15px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin: 20px 16px 12px 16px;
+        }
+
+        /* ==========================================
+           SCREEN 1: DASHBOARD COMPONENT STYLING
+           ========================================== */
+        .balance-card {
+            background-color: white;
+            margin: 0 16px;
+            border-radius: 12px;
+            border-left: 5px solid var(--dark-blue);
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .balance-icon-box {
+            width: 45px;
+            height: 45px;
+            background-color: var(--dark-blue);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-yellow);
+            font-size: 22px;
+        }
+
+        .balance-details {
+            flex: 1;
+        }
+
+        .balance-label-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .balance-amount-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+        }
+
+        .balance-amount {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .visibility-toggle {
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+        }
+
+        .last-login {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Services Adaptive Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 16px;
+            padding: 0 16px;
+        }
+
+        .service-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .service-circle {
+            width: 56px;
+            height: 56px;
+            background-color: var(--light-blue);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 22px;
+            transition: transform 0.1s ease;
+        }
+
+        .service-item:active .service-circle {
+            transform: scale(0.92);
+        }
+
+        .service-label {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        /* Promo Banner Component */
+        .promo-banner {
+            margin: 0 16px 24px 16px;
+            height: 140px;
+            border-radius: 12px;
+            background-image: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.1)), url('https://images.unsplash.com/photo-1600132806370-bf17e65e942f?w=600');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 16px;
+        }
+
+        .promo-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        /* Bottom Sticky Navigation Navigation Bar */
+        .bottom-nav {
+            background-color: white;
+            height: 64px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #E5E5E5;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary-yellow);
+            font-weight: 700;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        /* ==========================================
+           SCREEN 2: TRANSMISSION FORM COMPONENT STYLING
+           ========================================== */
+        .form-container {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-header-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--input-border);
+        }
+
+        .input-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: -4px;
+        }
+
+        .network-selector {
+            background-color: var(--charcoal);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .network-logo-box {
+            width: 22px;
+            height: 22px;
+            background-color: var(--primary-yellow);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            font-size: 13px;
+            font-weight: 900;
+            margin-right: 12px;
+        }
+
+        .dropdown-chevron {
+            margin-left: auto;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 4px;
+            transform: rotate(45deg);
+            margin-bottom: 4px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 15px;
+            color: var(--text-dark);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-yellow);
+        }
+
+        .input-icon-suffix {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--text-dark);
+            pointer-events: none;
+        }
+
+        /* Fixed Form Footer Layout */
+        .sticky-footer {
+            background-color: white;
+            padding: 20px 24px;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.04);
+            flex-shrink: 0;
+        }
+
+        .primary-action-btn {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 26px;
+            background-color: #E0E0E0;
+            color: rgba(0,0,0,0.3);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: not-allowed;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .primary-action-btn.enabled {
+            background-color: var(--primary-yellow);
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        /* Toast Popup Notification */
+        .toast {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--light-blue);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-wrapper">
+    
+    <div id="dashboard-view" class="view-container active">
+        <header>
+            <button aria-label="Back">←</button>
+            <h1>MoMo</h1>
+        </header>
+
+        <main style="flex: 1; overflow-y: auto;">
+            <div class="section-title">Balance</div>
+            
+            <div class="balance-card">
+                <div class="balance-icon-box">🗎</div>
+                <div class="balance-details">
+                    <div class="balance-label-row">
+                        <span>📱</span> MoMo Balance
+                    </div>
+                    <div class="balance-amount-row">
+                        <span id="balance-display-text" class="balance-amount">GHS 38905.74</span>
+                        <button id="balance-toggle-btn" class="visibility-toggle" aria-label="Toggle visibility">👁</button>
+                    </div>
+                    <div class="last-login">Last login: 5/17/2026 at 2:05:59 AM</div>
+                </div>
+            </div>
+
+            <div class="section-title">Services</div>
+            
+            <div class="services-grid">
+                <div class="service-item" id="send-momo-service-trigger">
+                    <div class="service-circle">👤</div>
+                    <div class="service-label">Send MoMo</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-circle">📋</div>
+                    <div class="service-label">Statement</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-circle">📤</div>
+                    <div class="service-label">Cashout</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-circle">☑</div>
+                    <div class="service-label">Approvals</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-circle">🖵</div>
+                    <div class="service-label">MoMo Pay</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-circle">🛡</div>
+                    <div class="service-label">Bank Services</div>
+                </div>
+            </div>
+
+            <div class="section-title">Get Broadband</div>
+            <div class="promo-banner">
+                <div class="promo-text">Get fibre broadband<br>for your home!</div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item"><span class="nav-icon">⌂</span>Home</div>
+            <div class="nav-item"><span class="nav-icon">🛍</span>Shop</div>
+            <div class="nav-item active"><span class="nav-icon">💱</span>MoMo</div>
+            <div class="nav-item"><span class="nav-icon">⋯</span>More</div>
+        </nav>
+    </div>
+
+    <div id="send-momo-view" class="view-container">
+        <header>
+            <button id="form-back-btn" aria-label="Go Back">←</button>
+            <h1>Send MoMo</h1>
+        </header>
+
+        <main style="flex: 1; overflow-y: auto;">
+            <div class="form-container">
+                <div class="form-header-text">Sending MoMo to MoMo wallets</div>
+                <hr>
+                <div class="input-label">Select Network</div>
+                
+                <div class="network-selector">
+                    <div class="network-logo-box">m</div>
+                    <span>MTN</span>
+                    <span class="dropdown-chevron"></span>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="tel" id="input-recipient" class="form-input" placeholder="Enter Number..." autocomplete="off">
+                    <span class="input-icon-suffix">📇</span>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="number" id="input-amount" class="form-input" placeholder="Enter Amount" step="any">
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="text" id="input-reference" class="form-input" placeholder="Enter reference" autocomplete="off">
+                </div>
+            </div>
+        </main>
+
+        <footer class="sticky-footer">
+            <button id="next-submit-btn" class="primary-action-btn" disabled>NEXT</button>
+        </footer>
+    </div>
+
+    <div id="toast-notification" class="toast"></div>
+
+</div>
+
+<script>
+    // State Values Container
+    const state = {
+        balance: 38905.74,
+        isBalanceHidden: false,
+        recipientNumber: '',
+        amount: null,
+        reference: ''
+    };
+
+    // UI Native Engine Selections
+    const dashView = document.getElementById('dashboard-view');
+    const sendMomoView = document.getElementById('send-momo-view');
+    const balanceText = document.getElementById('balance-display-text');
+    const balanceToggleBtn = document.getElementById('balance-toggle-btn');
+    const sendMomoTrigger = document.getElementById('send-momo-service-trigger');
+    const formBackBtn = document.getElementById('form-back-btn');
+    
+    const inputRecipient = document.getElementById('input-recipient');
+    const inputAmount = document.getElementById('input-amount');
+    const inputReference = document.getElementById('input-reference');
+    const nextBtn = document.getElementById('next-submit-btn');
+    const toastNode = document.getElementById('toast-notification');
+
+    // --- Dashboard Actions ---
+    balanceToggleBtn.addEventListener('click', () => {
+        state.isBalanceHidden = !state.isBalanceHidden;
+        if (state.isBalanceHidden) {
+            balanceText.textContent = "GHS ••••••";
+            balanceToggleBtn.textContent = "🙈";
+        } else {
+            balanceText.textContent = `GHS ${state.balance.toFixed(2)}`;
+            balanceToggleBtn.textContent = "👁";
+        }
+    });
+
+    // View Switching Route Logic
+    sendMomoTrigger.addEventListener('click', () => {
+        dashView.classList.remove('active');
+        sendMomoView.classList.add('active');
+    });
+
+    formBackBtn.addEventListener('click', () => {
+        sendMomoView.classList.remove('active');
+        dashView.classList.add('active');
+    });
+
+    // --- Form Verification Validation Framework ---
+    function validateFormState() {
+        state.recipientNumber = inputRecipient.value.trim();
+        state.amount = parseFloat(inputAmount.value);
+        state.reference = inputReference.value.trim();
+
+        const isNumberValid = state.recipientNumber.length >= 9;
+        const isAmountValid = !isNaN(state.amount) && state.amount > 0 && state.amount <= state.balance;
+        const isRefValid = state.reference.length > 0;
+
+        if (isNumberValid && isAmountValid && isRefValid) {
+            nextBtn.removeAttribute('disabled');
+            nextBtn.classList.add('enabled');
+        } else {
+            nextBtn.setAttribute('disabled', 'true');
+            nextBtn.classList.remove('enabled');
+        }
+    }
+
+    inputRecipient.addEventListener('input', validateFormState);
+    inputAmount.addEventListener('input', validateFormState);
+    inputReference.addEventListener('input', validateFormState);
+
+    // Form Submission Action
+    nextBtn.addEventListener('click', () => {
+        if (!nextBtn.classList.contains('enabled')) return;
+        
+        // Show Native Notification
+        toastNode.textContent = `Processing GHS ${state.amount.toFixed(2)} to ${state.recipientNumber}`;
+        toastNode.style.opacity = '1';
+        
+        setTimeout(() => {
+            toastNode.style.opacity = '0';
+        }, 3000);
+    });
+</script>
+
+</body>
+</html>
